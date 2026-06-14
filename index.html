@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>英学坊 - 智能英语学习平台 | 在线考试 + 数据分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+            line-height: 1.5;
+        }
+
+        /* 头部样式 */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+        .btn-home, .btn-logout {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-logout {
+            background: #ef4444;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .section h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-left: 5px solid #2b4c7c;
+            padding-left: 1rem;
+        }
+        .materials-grid, .exams-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .material-card, .exam-card {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s;
+        }
+        .material-card:hover, .exam-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .material-type {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: 0.5rem 0;
+        }
+        audio, video {
+            width: 100%;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+        }
+        .btn-start, .btn-submit, button {
+            background: #2b4c7c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn-submit {
+            background: #10b981;
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+        }
+        .exam-header {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .exam-timer {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #dc2626;
+            margin-top: 1rem;
+        }
+        .student-info {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .student-info input {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+        }
+        .question-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+        .question-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .score {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        .options {
+            margin: 1rem 0;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 30px;
+            color: #1f2937;
+        }
+        .tab-btn.active {
+            background: #2b4c7c;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .login-panel {
+            max-width: 400px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 28px;
+            text-align: center;
+        }
+        input, select, textarea {
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.7rem;
+            border-radius: 12px;
+            border: 1px solid #d1d5db;
+        }
+        button {
+            width: 100%;
+        }
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+        @media (max-width: 640px) {
+            .student-info { flex-direction: column; }
+            .btn-home, .btn-logout { position: static; margin-top: 10px; display: inline-block; }
+            .header { text-align: left; }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f1f5f9;
+        }
+        .qr-img {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 动态渲染视图: 学生首页 / 考试页 / 管理后台 -->
+</div>
+
+<script>
+    // ---------- 模拟数据存储 (使用 localStorage) ----------
+    const STORAGE_KEYS = {
+        MATERIALS: 'yingxue_materials',
+        EXAMS: 'yingxue_exams',
+        QUESTIONS: 'yingxue_questions',
+        RESULTS: 'yingxue_results'
+    };
+
+    // 初始化示例数据
+    function initSampleData() {
+        if (!localStorage.getItem(STORAGE_KEYS.MATERIALS)) {
+            const sampleMaterials = [
+                { id: 1, title: '英语基础语法 - 名词与代词', type: 'text', content_url: '<h3>名词与代词</h3><p>名词是表示人、事物、地点或抽象概念的名称... 代词用于代替名词。</p>', createdAt: new Date().toISOString() },
+                { id: 2, title: 'BBC 听力练习 - 日常对话', type: 'audio', content_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', createdAt: new Date().toISOString() },
+                { id: 3, title: 'TED 演讲：如何学好英语', type: 'video', content_url: 'https://www.w3schools.com/html/mov_bbb.mp4', createdAt: new Date().toISOString() }
+            ];
+            localStorage.setItem(STORAGE_KEYS.MATERIALS, JSON.stringify(sampleMaterials));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.EXAMS)) {
+            const sampleExams = [
+                { id: 1, title: '英语入门测试', description: '包含5道题目，测试基础语法和词汇', duration: 30, createdAt: new Date().toISOString() }
+            ];
+            localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify(sampleExams));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.QUESTIONS)) {
+            const sampleQuestions = [
+                { id: 101, exam_id: 1, type: 'single', content: '“Apple” 的中文意思是？', options: ['苹果', '橘子', '香蕉', '葡萄'], answer: '苹果', score: 2 },
+                { id: 102, exam_id: 1, type: 'single', content: '“Good morning” 的正确翻译是？', options: ['晚上好', '早上好', '下午好', '晚安'], answer: '早上好', score: 2 },
+                { id: 103, exam_id: 1, type: 'single', content: '下列哪个单词表示“快乐”？', options: ['Sad', 'Happy', 'Angry', 'Tired'], answer: 'Happy', score: 2 },
+                { id: 104, exam_id: 1, type: 'multiple', content: '以下属于英语时态的是？', options: ['现在时', '过去时', '将来时', '虚拟时'], answer: ['现在时', '过去时', '将来时'], score: 3 },
+                { id: 105, exam_id: 1, type: 'single', content: '“图书馆”的英文是？', options: ['School', 'Hospital', 'Library', 'Restaurant'], answer: 'Library', score: 2 }
+            ];
+            localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(sampleQuestions));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.RESULTS)) {
+            localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify([]));
+        }
+    }
+    initSampleData();
+
+    // 辅助函数
+    function getMaterials() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.MATERIALS) || '[]'); }
+    function saveMaterials(materials) { localStorage.setItem(STORAGE_KEYS.MATERIALS, JSON.stringify(materials)); }
+    function getExams() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.EXAMS) || '[]'); }
+    function saveExams(exams) { localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify(exams)); }
+    function getQuestions() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.QUESTIONS) || '[]'); }
+    function saveQuestions(questions) { localStorage.setItem(STORAGE_KEYS.QUESTIONS, JSON.stringify(questions)); }
+    function getResults() { return JSON.parse(localStorage.getItem(STORAGE_KEYS.RESULTS) || '[]'); }
+    function saveResults(results) { localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(results)); }
+
+    // 全局状态: 当前页面路由 (student, exam, admin)
+    let currentRoute = 'student';
+    let examIdForPage = null;
+
+    // 管理员会话 (简单模拟)
+    let adminLoggedIn = false;
+
+    // 渲染主函数
+    function render() {
+        const appDiv = document.getElementById('app');
+        if (currentRoute === 'student') {
+            appDiv.innerHTML = renderStudentHome();
+            attachStudentEvents();
+        } else if (currentRoute === 'exam') {
+            appDiv.innerHTML = renderExamPage();
+            attachExamEvents();
+        } else if (currentRoute === 'admin') {
+            appDiv.innerHTML = renderAdminPanel();
+            attachAdminEvents();
+        }
+    }
+
+    // ---------- 学生首页 ----------
+    function renderStudentHome() {
+        const materials = getMaterials();
+        const exams = getExams();
+        return `
+            <header class="header">
+                <h1>📚 英学坊</h1>
+                <p>智能英语学习平台 | 资料 + 在线考试</p>
+                <button class="btn-home" onclick="navigateToAdmin()">🔐 管理员登录</button>
+            </header>
+            <main class="container">
+                <section class="section">
+                    <h2>📖 学习资料</h2>
+                    <div id="materials-list" class="materials-grid">
+                        ${materials.map(m => `
+                            <div class="material-card">
+                                <h3>${escapeHtml(m.title)}</h3>
+                                <div class="material-type">${m.type === 'text' ? '📄 文本' : m.type === 'audio' ? '🎵 音频' : '🎬 视频'}</div>
+                                ${m.type === 'text' ? `<div class="material-text">${m.content_url}</div>` : ''}
+                                ${m.type === 'audio' ? `<audio controls src="${m.content_url}"></audio>` : ''}
+                                ${m.type === 'video' ? `<video controls src="${m.content_url}" style="max-width:100%"></video>` : ''}
+                                <small>上传于: ${new Date(m.createdAt).toLocaleString()}</small>
+                            </div>
+                        `).join('') || '<p>暂无学习资料，请在后台添加</p>'}
+                    </div>
+                </section>
+                <section class="section">
+                    <h2>✍️ 在线考试</h2>
+                    <div id="exams-list" class="exams-list">
+                        ${exams.map(exam => `
+                            <div class="exam-card">
+                                <h3>📝 ${escapeHtml(exam.title)}</h3>
+                                <p>${escapeHtml(exam.description || '无描述')}</p>
+                                <div class="exam-meta">⏱️ 时长: ${exam.duration} 分钟</div>
+                                <button class="btn-start" data-exam-id="${exam.id}">开始考试</button>
+                            </div>
+                        `).join('') || '<p>暂无考试，请在后台创建</p>'}
+                    </div>
+                </section>
+            </main>
+            <footer class="footer"><p>© 2025 英学坊 | 扫码答题，高效学习</p></footer>
+        `;
+    }
+
+    function attachStudentEvents() {
+        document.querySelectorAll('.btn-start').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const examId = btn.getAttribute('data-exam-id');
+                window.location.hash = `exam/${examId}`;
+                navigateToExam(examId);
+            });
+        });
+    }
+
+    // ---------- 考试页面 ----------
+    function renderExamPage() {
+        if (!examIdForPage) return '<div class="container">无效考试</div>';
+        const exams = getExams();
+        const exam = exams.find(e => e.id == examIdForPage);
+        if (!exam) return '<div class="container">考试不存在</div>';
+        const questions = getQuestions().filter(q => q.exam_id == examIdForPage);
+        if (questions.length === 0) return '<div class="container">此考试暂无题目</div>';
+        
+        return `
+            <header class="header">
+                <h1>📝 英语考试</h1>
+                <button class="btn-home" onclick="navigateToStudent()">返回首页</button>
+            </header>
+            <main class="container" id="examContainer">
+                <div class="exam-header">
+                    <h2>${escapeHtml(exam.title)}</h2>
+                    <p>${escapeHtml(exam.description || '')}</p>
+                    <div class="exam-timer">⏰ 剩余时间: <span id="timerDisplay">${exam.duration}:00</span></div>
+                </div>
+                <form id="examForm">
+                    <div class="student-info">
+                        <input type="text" id="studentName" placeholder="请输入姓名" required>
+                        <input type="text" id="studentId" placeholder="请输入学号/工号" required>
+                    </div>
+                    <div class="questions-area">
+                        ${questions.map((q, idx) => `
+                            <div class="question-card" data-qid="${q.id}">
+                                <div class="question-title">${idx+1}. ${escapeHtml(q.content)} <span class="score">(${q.score}分)</span></div>
+                                <div class="question-type">${q.type === 'single' ? '单选题' : '多选题'}</div>
+                                <div class="options" id="options-${q.id}">
+                                    ${q.options.map(opt => `
+                                        <label class="option">
+                                            <input type="${q.type === 'single' ? 'radio' : 'checkbox'}" name="q${q.id}" value="${escapeHtml(opt)}"> 
+                                            <span>${escapeHtml(opt)}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button type="submit" class="btn-submit">提交试卷</button>
+                </form>
+            </main>
+        `;
+    }
+
+    let timerInterval = null;
+    function attachExamEvents() {
+        const exams = getExams();
+        const exam = exams.find(e => e.id == examIdForPage);
+        if (!exam) return;
+        let minutes = exam.duration;
+        let seconds = 0;
+        const timerSpan = document.getElementById('timerDisplay');
+        if (timerSpan) {
+            timerInterval = setInterval(() => {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        clearInterval(timerInterval);
+                        alert('考试时间到，自动提交！');
+                        submitExamAnswers();
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                timerSpan.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+        const form = document.getElementById('examForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (confirm('确认提交试卷吗？')) {
+                    if (timerInterval) clearInterval(timerInterval);
+                    submitExamAnswers();
+                }
+            });
+        }
+    }
+
+    function submitExamAnswers() {
+        const studentName = document.getElementById('studentName')?.value.trim();
+        const studentId = document.getElementById('studentId')?.value.trim();
+        if (!studentName || !studentId) {
+            alert('请填写姓名和学号');
+            return;
+        }
+        const questions = getQuestions().filter(q => q.exam_id == examIdForPage);
+        const answers = {};
+        for (let q of questions) {
+            if (q.type === 'single') {
+                const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+                answers[q.id] = selected ? selected.value : '';
+            } else {
+                const selected = Array.from(document.querySelectorAll(`input[name="q${q.id}"]:checked`)).map(cb => cb.value);
+                answers[q.id] = selected;
+            }
+        }
+        // 评分
+        let totalScore = 0, earnedScore = 0;
+        for (let q of questions) {
+            totalScore += q.score;
+            const userAns = answers[q.id];
+            let correct = false;
+            if (q.type === 'single') {
+                correct = (userAns === q.answer);
+            } else if (q.type === 'multiple') {
+                const correctArr = q.answer;
+                const userArr = Array.isArray(userAns) ? userAns : [];
+                if (correctArr.length === userArr.length && correctArr.sort().join(',') === userArr.sort().join(',')) {
+                    correct = true;
+                }
+            }
+            if (correct) earnedScore += q.score;
+        }
+        const results = getResults();
+        const newResult = {
+            id: Date.now(),
+            exam_id: examIdForPage,
+            student_name: studentName,
+            student_id: studentId,
+            score: earnedScore,
+            total_score: totalScore,
+            submit_time: new Date().toISOString(),
+            answers_detail: answers
+        };
+        results.push(newResult);
+        saveResults(results);
+        alert(`提交成功！您的得分: ${earnedScore} / ${totalScore}`);
+        navigateToStudent();
+    }
+
+    // ---------- 管理员后台 ----------
+    function renderAdminPanel() {
+        if (!adminLoggedIn) {
+            return `
+                <div class="container">
+                    <div class="login-panel">
+                        <h2>管理员登录</h2>
+                        <input type="text" id="adminUser" placeholder="用户名" value="admin">
+                        <input type="password" id="adminPass" placeholder="密码" value="password">
+                        <button id="adminLoginBtn">登录</button>
+                    </div>
+                </div>
+            `;
+        }
+        const exams = getExams();
+        const materials = getMaterials();
+        return `
+            <header class="header">
+                <h1>🔧 英学坊 管理中心</h1>
+                <button class="btn-logout" id="logoutAdminBtn">退出登录</button>
+                <button class="btn-home" onclick="navigateToStudent()">返回学生端</button>
+            </header>
+            <main class="container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="materials">📁 学习资料</button>
+                    <button class="tab-btn" data-tab="exams">📝 考试管理</button>
+                    <button class="tab-btn" data-tab="analysis">📊 数据分析</button>
+                    <button class="tab-btn" data-tab="qrcode">📱 二维码生成</button>
+                </div>
+                <!-- 资料管理 -->
+                <div id="tab-materials" class="tab-content active">
+                    <h3>上传学习资料</h3>
+                    <form id="materialForm">
+                        <input type="text" id="materialTitle" placeholder="资料标题" required>
+                        <select id="materialType">
+                            <option value="text">文本</option>
+                            <option value="audio">音频</option>
+                            <option value="video">视频</option>
+                        </select>
+                        <textarea id="textContent" placeholder="文本内容（支持HTML）" rows="4"></textarea>
+                        <input type="text" id="mediaUrl" placeholder="音频/视频链接 (URL)">
+                        <button type="submit">上传资料</button>
+                    </form>
+                    <hr>
+                    <h4>已有资料列表</h4>
+                    <div id="adminMaterialsList">${materials.map(m => `<div><strong>${m.title}</strong> (${m.type}) <small>${new Date(m.createdAt).toLocaleString()}</small></div>`).join('')}</div>
+                </div>
+                <!-- 考试管理 -->
+                <div id="tab-exams" class="tab-content">
+                    <h3>创建新考试</h3>
+                    <form id="createExamFormAdmin">
+                        <input type="text" id="examTitle" placeholder="考试名称" required>
+                        <input type="text" id="examDesc" placeholder="考试描述">
+                        <input type="number" id="examDuration" placeholder="考试时长(分钟)" value="30" required>
+                        <button type="submit">创建考试</button>
+                    </form>
+                    <hr>
+                    <h4>添加题目</h4>
+                    <select id="examSelectForQuestion"></select>
+                    <form id="addQuestionFormAdmin">
+                        <select id="questionType">
+                            <option value="single">单选题</option>
+                            <option value="multiple">多选题</option>
+                        </select>
+                        <input type="text" id="questionContent" placeholder="题目内容" required>
+                        <input type="text" id="questionOptions" placeholder="选项（JSON数组，如：[\"选项A\",\"选项B\"]）" required>
+                        <input type="text" id="questionAnswer" placeholder="正确答案（单选填字符串，多选填JSON数组）" required>
+                        <input type="number" id="questionScore" placeholder="分值" value="2" required>
+                        <button type="submit">添加题目</button>
+                    </form>
+                    <hr>
+                    <h4>考试列表</h4>
+                    <div id="examsListAdmin">${exams.map(e => `<div><strong>${e.title}</strong> - ${e.description || ''} (时长:${e.duration}分钟)</div>`).join('')}</div>
+                </div>
+                <!-- 数据分析 -->
+                <div id="tab-analysis" class="tab-content">
+                    <h3>考试成绩分析</h3>
+                    <select id="analysisExamSelect"></select>
+                    <button id="loadAnalysisBtn">加载分析</button>
+                    <div id="analysisResults"></div>
+                </div>
+                <!-- 二维码生成 -->
+                <div id="tab-qrcode" class="tab-content">
+                    <h3>生成考试二维码（手机扫码答题）</h3>
+                    <select id="qrcodeExamSelect"></select>
+                    <button id="genQRBtn">生成二维码</button>
+                    <div id="qrDisplay" class="qr-img"></div>
+                </div>
+            </main>
+        `;
+    }
+
+    function attachAdminEvents() {
+        // 资料上传
+        document.getElementById('materialForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('materialTitle').value;
+            const type = document.getElementById('materialType').value;
+            let contentUrl = '';
+            if (type === 'text') contentUrl = document.getElementById('textContent').value;
+            else contentUrl = document.getElementById('mediaUrl').value;
+            if (!contentUrl && type !== 'text') { alert('请填写媒体链接'); return; }
+            const materials = getMaterials();
+            const newId = Date.now();
+            materials.push({ id: newId, title, type, content_url: contentUrl, createdAt: new Date().toISOString() });
+            saveMaterials(materials);
+            alert('资料上传成功');
+            render();
+        });
+        // 创建考试
+        document.getElementById('createExamFormAdmin')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('examTitle').value;
+            const description = document.getElementById('examDesc').value;
+            const duration = parseInt(document.getElementById('examDuration').value);
+            const exams = getExams();
+            const newId = Date.now();
+            exams.push({ id: newId, title, description, duration, createdAt: new Date().toISOString() });
+            saveExams(exams);
+            alert('考试创建成功');
+            render();
+        });
+        // 加载考试下拉框
+        function populateExamSelects() {
+            const exams = getExams();
+            const opts = exams.map(e => `<option value="${e.id}">${e.title}</option>`).join('');
+            const select1 = document.getElementById('examSelectForQuestion');
+            const select2 = document.getElementById('analysisExamSelect');
+            const select3 = document.getElementById('qrcodeExamSelect');
+            if (select1) select1.innerHTML = opts;
+            if (select2) select2.innerHTML = opts;
+            if (select3) select3.innerHTML = opts;
+        }
+        populateExamSelects();
+
+        // 添加题目
+        document.getElementById('addQuestionFormAdmin')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const examId = parseInt(document.getElementById('examSelectForQuestion').value);
+            const type = document.getElementById('questionType').value;
+            const content = document.getElementById('questionContent').value;
+            let options;
+            try { options = JSON.parse(document.getElementById('questionOptions').value); } catch(e) { alert('选项格式错误，需JSON数组'); return; }
+            let answer;
+            if (type === 'single') answer = document.getElementById('questionAnswer').value;
+            else { try { answer = JSON.parse(document.getElementById('questionAnswer').value); } catch(e) { alert('多选题答案需JSON数组'); return; } }
+            const score = parseInt(document.getElementById('questionScore').value);
+            const questions = getQuestions();
+            const newId = Date.now();
+            questions.push({ id: newId, exam_id: examId, type, content, options, answer, score });
+            saveQuestions(questions);
+            alert('题目添加成功');
+            render();
+        });
+
+        // 数据分析
+        document.getElementById('loadAnalysisBtn')?.addEventListener('click', () => {
+            const examId = parseInt(document.getElementById('analysisExamSelect').value);
+            const questions = getQuestions().filter(q => q.exam_id === examId);
+            const results = getResults().filter(r => r.exam_id === examId);
+            let analysisHtml = '<h4>题目正确率分析</h4><table><tr><th>题目</th><th>正确率</th><th>作答人数</th></tr>';
+            for (let q of questions) {
+                let correctCount = 0;
+                for (let r of results) {
+                    let userAns = r.answers_detail ? r.answers_detail[q.id] : null;
+                    let isCorrect = false;
+                    if (q.type === 'single') isCorrect = (userAns === q.answer);
+                    else if (q.type === 'multiple') {
+                        const correctArr = q.answer;
+                        const userArr = Array.isArray(userAns) ? userAns : [];
+                        if (correctArr.length === userArr.length && correctArr.sort().join(',') === userArr.sort().join(',')) isCorrect = true;
+                    }
+                    if (isCorrect) correctCount++;
+                }
+                const rate = results.length ? (correctCount / results.length * 100).toFixed(1) : 0;
+                analysisHtml += `<tr><td>${escapeHtml(q.content)}</td><td>${rate}%</td><td>${results.length}</td></tr>`;
+            }
+            analysisHtml += '</table><h4>学生成绩列表</h4><table><tr><th>姓名</th><th>学号</th><th>得分</th><th>总分</th><th>提交时间</th></tr>';
+            for (let r of results) {
+                analysisHtml += `<tr><td>${escapeHtml(r.student_name)}</td><td>${escapeHtml(r.student_id)}</td><td>${r.score}</td><td>${r.total_score}</td><td>${new Date(r.submit_time).toLocaleString()}</td></tr>`;
+            }
+            analysisHtml += '</table>';
+            document.getElementById('analysisResults').innerHTML = analysisHtml;
+        });
+
+        // 二维码生成
+        document.getElementById('genQRBtn')?.addEventListener('click', async () => {
+            const examId = document.getElementById('qrcodeExamSelect').value;
+            const baseUrl = `${window.location.origin}${window.location.pathname}#exam/${examId}`;
+            // 模拟二维码 (使用在线API生成)
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(baseUrl)}`;
+            document.getElementById('qrDisplay').innerHTML = `
+                <img src="${qrUrl}" style="width:200px; margin-top:1rem;"><br>
+                <a href="${baseUrl}" target="_blank">考试链接 (点击模拟扫码)</a><br>
+                <p>📱 手机扫描二维码即可进入考试</p>
+            `;
+        });
+
+        document.getElementById('logoutAdminBtn')?.addEventListener('click', () => {
+            adminLoggedIn = false;
+            render();
+        });
+    }
+
+    // 路由与全局导航
+    window.navigateToStudent = function() {
+        if (timerInterval) clearInterval(timerInterval);
+        currentRoute = 'student';
+        examIdForPage = null;
+        window.location.hash = '';
+        render();
+    };
+    window.navigateToExam = function(id) {
+        if (timerInterval) clearInterval(timerInterval);
+        currentRoute = 'exam';
+        examIdForPage = parseInt(id);
+        window.location.hash = `exam/${id}`;
+        render();
+    };
+    window.navigateToAdmin = function() {
+        currentRoute = 'admin';
+        examIdForPage = null;
+        window.location.hash = 'admin';
+        render();
+    };
+    // 监听hash变化
+    function handleHashChange() {
+        const hash = window.location.hash.slice(1);
+        if (hash.startsWith('exam/')) {
+            const id = hash.split('/')[1];
+            if (id) navigateToExam(id);
+        } else if (hash === 'admin') {
+            currentRoute = 'admin';
+            examIdForPage = null;
+            render();
+        } else {
+            navigateToStudent();
+        }
+    }
+    window.addEventListener('hashchange', handleHashChange);
+    // 管理员登录处理 (监听全局事件)
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'adminLoginBtn') {
+            const user = document.getElementById('adminUser')?.value;
+            const pass = document.getElementById('adminPass')?.value;
+            if (user === 'admin' && pass === 'password') {
+                adminLoggedIn = true;
+                render();
+            } else { alert('用户名或密码错误'); }
+        }
+    });
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 启动渲染
+    handleHashChange();
+</script>
+</body>
+</html>
